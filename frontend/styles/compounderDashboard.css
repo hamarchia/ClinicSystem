@@ -2,7 +2,7 @@
 
 .compounder-dashboard {
     font-family: Arial, sans-serif;
-    padding-top: 120px; /* leave space for the fixed header */
+    padding-top: 120px;
   }
   
   .header {
@@ -46,20 +46,22 @@
     display: flex;
     margin-top: 20px;
     padding: 20px;
+    width: 100vw;           /* Full viewport width */
+    box-sizing: border-box; /* Include padding in the width */
   }
   
   /* Left column: Patient Search Section */
   .patient-search-section {
     flex: 1;
-    margin-right: 20px;
-    padding-right: 20px;
+    /* margin-right: 20px;
+    padding-right: 20px; */
     border-right: 1px solid #ccc;
   }
   
   .patient-list .patient-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px;
+    /* padding: 8px; */
     border-bottom: 1px solid #eee;
     cursor: pointer;
   }

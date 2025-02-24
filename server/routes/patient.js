@@ -76,6 +76,7 @@ router.delete('/delete/:patientId', authenticateToken, async (req, res) => {
 
 // Search Patients by First Name, Last Name, or Both (GET)
 router.get('/search', authenticateToken, async (req, res) => {
+    console.log("HIT: seach api");
     try {
       const { firstName, lastName } = req.query;
       //console.log(firstName)

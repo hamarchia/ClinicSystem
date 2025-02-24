@@ -46,19 +46,33 @@ router.post('/start', authenticateToken, async (req, res) => {
       if (!sequenceNo || !patientId) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
-      const updatedShift = await Shift.findByIdAndUpdate(
-        req.params.shiftId,
-        { $push: { queue: { sequenceNo, patientId } } },
-        { new: true }
-      );
-      if (!updatedShift) {
+  
+      // Find the shift
+      const shift = await Shift.findById(req.params.shiftId);
+      if (!shift) {
         return res.status(404).json({ message: 'Shift not found' });
       }
-      res.json(updatedShift);
+  
+      // Check if the patient is already in the queue
+      const alreadyInQueue = shift.queue.some(
+        (item) => item.patientId && item.patientId._id.toString() === patientId.toString()
+      );
+      
+      if (alreadyInQueue) {
+        return res.status(400).json({ message: 'Patient is already in the shift' });
+      }
+  
+      // Add patient to the shift
+      shift.queue.push({ sequenceNo, patientId });
+      await shift.save();
+  
+      res.json(shift);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ message: 'Server error' });
     }
   });
+  
 
 // Get today's latest shift (GET)
 router.get('/current', authenticateToken, async (req, res) => {

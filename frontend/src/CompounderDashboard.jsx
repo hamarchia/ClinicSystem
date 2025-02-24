@@ -17,7 +17,7 @@ const CompounderDashboard = ({ user, setUser }) => {
   });
 
   // States for search, patient list and modals
-  const [searchType, setSearchType] = useState('name'); // "name" or "address"
+  const [searchType, setSearchType] = useState('fname'); 
   const [searchQuery, setSearchQuery] = useState('');
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -53,34 +53,42 @@ const CompounderDashboard = ({ user, setUser }) => {
 
   // --- Search functionality ---
   const handleSearch = async () => {
-    console.log("trying to search");
-    if (!searchQuery.trim()) return;
+    console.log("Initiating search");
+    //console.log("SearchQuery "+searchQuery);
+    //console.log("SearchType "+searchType);
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
 
     let url = '';
-    if (searchType === 'name') {
-      console.log("name search");
-      // Split search query by space.
-      const parts = searchQuery.trim().split(' ');
-      const firstName = parts[0];
-      const lastName = parts[1] || '';
-      url = `/api/patients/search?firstName=${encodeURIComponent(
-        firstName
-      )}&lastName=${encodeURIComponent(lastName)}`;
-      console.log(url);
-    } else {
-      console.log("address search");
-      url = `/api/patients/search/address?address=${encodeURIComponent(
-        searchQuery.trim()
-      )}`;
+
+    switch (searchType) {
+        case 'fname':
+            console.log("Searching by first name");
+            url = `/api/patients/search?firstName=${encodeURIComponent(trimmedQuery)}`;
+            break;
+        case 'lname':
+            console.log("Searching by last name");
+            url = `/api/patients/search?lastName=${encodeURIComponent(trimmedQuery)}`;
+            break;
+        case 'address':
+            console.log("Searching by address");
+            url = `/api/patients/search/address?address=${encodeURIComponent(trimmedQuery)}`;
+            break;
+        default:
+            console.error('Invalid search type');
+            return;
     }
+
+    //console.log(`Request URL: ${url}`);
+
     try {
-      const res = await axiosInstance.get(url);
-      setPatients(res.data);
-      console.log(res.data);
+        const res = await axiosInstance.get(url);
+        setPatients(res.data);
+        console.log('Search results:', res.data);
     } catch (error) {
-      console.error('Error searching patients:', error);
+        console.error('Error searching patients:', error);
     }
-  };
+};
 
   // --- Patient Detail Modal Handlers ---
   const handlePatientClick = (patient) => {
@@ -134,7 +142,7 @@ const CompounderDashboard = ({ user, setUser }) => {
     try {
       const res = await axiosInstance.post('/api/patients', enrollFormData);
       const newPatient = res.data;
-      setPatients([...patients, newPatient]);
+      //setPatients([...patients, newPatient]);
       setShowEnrollForm(false);
       setEnrollFormData({
         firstName: '',
@@ -175,6 +183,16 @@ const CompounderDashboard = ({ user, setUser }) => {
       alert('No active shift. Please start a shift first.');
       return;
     }
+
+    // Check if the patient is already in the shift's queue
+  const alreadyInQueue = shift.queue && shift.queue.some(
+    (item) => item.patientId._id === patient._id
+  );
+  if (alreadyInQueue) {
+    alert('Patient is already added to the shift.');
+    return;
+  }
+
     // Determine the sequence number as (current queue length + 1)
     const sequenceNo = shift.queue ? shift.queue.length + 1 : 1;
     try {
@@ -204,14 +222,17 @@ const CompounderDashboard = ({ user, setUser }) => {
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
             >
-              <option value="name">Search by Name</option>
+              <option value="fname">Search by First Name</option> 
+              <option value="lname">Search by Second Name</option>
               <option value="address">Search by Address</option>
             </select>
             <input
               type="text"
               placeholder={
-                searchType === 'name'
-                  ? 'Enter first name and/or last name'
+                searchType === 'fname'
+                  ? 'Enter first name'
+                  : searchType === 'lname'
+                  ? 'Enter last name'
                   : 'Enter address'
               }
               value={searchQuery}
@@ -232,9 +253,6 @@ const CompounderDashboard = ({ user, setUser }) => {
         </div>
         <div className="user-info">
           <h2>Compounder Dashboard</h2>
-          <p>
-            Welcome, {user.role} (User ID: {user.userId})
-          </p>
           <button className="logout-button" onClick={handleLogout}>
             Logout
           </button>
@@ -285,7 +303,7 @@ const CompounderDashboard = ({ user, setUser }) => {
                   <ul>
                     {shift.queue.map((item, index) => (
                       <li key={index}>
-                        {item.sequenceNo}. Patient ID: {item.patientId}
+                        {item.sequenceNo}. {item.patientId.firstName} {item.patientId.lastName}
                       </li>
                     ))}
                   </ul>

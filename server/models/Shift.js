@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const autopopulate = require('mongoose-autopopulate');
 const Schema = mongoose.Schema;
 
 const shiftSchema = new Schema({
@@ -21,10 +22,13 @@ const shiftSchema = new Schema({
     patientId: {
       type: Schema.Types.ObjectId,
       ref: 'Patient',
-      required: true
+      required: true,
+      autopopulate: true
     }
   }]
 });
+
+shiftSchema.plugin(autopopulate);
 
 // Index for quick retrieval of shifts by date
 shiftSchema.index({ shiftDate: 1 });
