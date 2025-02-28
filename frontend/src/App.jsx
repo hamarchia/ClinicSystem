@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Login from './Login.jsx';
 import DoctorDashboard from './DoctorDashboard.jsx';
 import CompounderDashboard from './CompounderDashboard.jsx';
+import PrescriptionHistory from './PrescriptionHistory.jsx';
 import { jwtDecode } from "jwt-decode";
 
 const App = () => {
@@ -30,6 +31,7 @@ const App = () => {
           <>
             <Route path="/doctor" element={<DoctorDashboard user={user} setUser={setUser} />} />
             <Route path="/compounder" element={<CompounderDashboard user={user} setUser={setUser} />} />
+            <Route path="/prescription-history/:patientId" element={<PrescriptionHistory />} />
           </>
         )}
       </Routes>

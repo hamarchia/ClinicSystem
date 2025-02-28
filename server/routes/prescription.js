@@ -63,8 +63,27 @@ router.get('/:patientId', authenticateToken, async (req, res) => {
   
       res.json(prescriptions);
     } catch (err) {
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({err});
     }
   });
+
+//Get current prescriptions
+router.get('/current/:patientId', async (req, res) => {
+  try {
+    const dateFilter = req.query.date ? new Date(req.query.date) : new Date();
+    
+    const prescriptions = await Prescription.find({
+      patientId: req.params.patientId,
+      createdAt: {
+        $gte: new Date(dateFilter.setHours(0, 0, 0, 0)),
+        $lt: new Date(dateFilter.setHours(23, 59, 59, 999))
+      }
+    }).sort({ createdAt: -1 });
+
+    res.json(prescriptions);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});  
   
 module.exports = router;

@@ -1,0 +1,132 @@
+/* dashboard.css */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Left column (wider) */
+  .dashboard-left {
+    flex: 2;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+  }
+  
+  /* Right column (narrower) */
+  .dashboard-right {
+    flex: 1;
+    padding: 20px;
+    margin-left: 20px;
+  }
+  
+  .dashboard-left h2,
+  .dashboard-right h2 {
+    margin-bottom: 10px;
+  }
+  
+  /* Patients list in the shift queue */
+  .patients-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .patient-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .patient-item:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* Prescriptions list */
+  .prescriptions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .prescription-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+  }
+  
+  .prescription-item p {
+    margin: 5px 0;
+  }
+  
+  /* Add Prescription Form */
+  .prescription-form {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .prescription-form input,
+  .prescription-form textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+  }
+  
+  .prescription-form button {
+    align-self: flex-start;
+    padding: 8px 12px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .prescription-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* General button styles */
+  button {
+    cursor: pointer;
+  }
+  
+  /* Logout button */
+  .logout-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #dc3545;
+    color: #fff;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .logout-button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Shared in both dashboards */
+.patient-done {
+  background-color: #e0ffe0;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.mark-done-btn {
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+}

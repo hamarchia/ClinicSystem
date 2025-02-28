@@ -2,10 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket.io-client';
+
 import '../styles/compounderDashboard.css';
 
 const CompounderDashboard = ({ user, setUser }) => {
+  const [donePatients, setDonePatients] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [selectedQueuePatient, setSelectedQueuePatient] = useState(null);
+  const [currentPrescriptions, setCurrentPrescriptions] = useState([]);
   const navigate = useNavigate();
+
   const token = localStorage.getItem('token');
 
   // Create an axios instance with base URL and headers
@@ -34,11 +41,61 @@ const CompounderDashboard = ({ user, setUser }) => {
   // State for shift management
   const [shift, setShift] = useState(null);
 
-  // Fetch the current (latest) shift on component mount
-  useEffect(() => {
-    fetchCurrentShift();
-  }, []);
+ // Socket and shift initialization (runs once on mount)
+useEffect(() => {
+  // Initialize Socket.io connection
+  const newSocket = io('http://localhost:5000', {
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  });
 
+  // Socket event handlers
+  newSocket.on('connect', () => {
+    console.log('🔌 Socket connected (Compounder):', newSocket.id);
+  });
+
+  newSocket.on('done-patients-update', (patients) => {
+    console.log('📥 Received done patients update:', patients);
+    setDonePatients(patients);
+  });
+
+  setSocket(newSocket);
+
+  // Fetch initial shift
+  fetchCurrentShift();
+
+  // Cleanup (runs on unmount)
+  return () => {
+    console.log('🧹 Cleaning up compounder socket connection');
+    newSocket.disconnect();
+  };
+}, []); // Empty dependency array = runs once
+
+// Shift polling (independent of socket)
+useEffect(() => {
+  const intervalId = setInterval(fetchCurrentShift, 5000);
+  return () => clearInterval(intervalId);
+}, []); // Add fetchCurrentShift to dependencies if it changes
+
+// Prescription fetching (runs when queue patient changes)
+useEffect(() => {
+  const fetchTodaysPrescriptions = async () => {
+    if (!selectedQueuePatient || !shift) return;
+    
+    try {
+      const res = await axiosInstance.get(
+        `/api/prescriptions/current/${selectedQueuePatient.patientId._id}?date=${shift.shiftDate}`
+      );
+      setCurrentPrescriptions(res.data);
+    } catch (error) {
+      console.error('Error fetching prescriptions:', error);
+      setCurrentPrescriptions([]);
+    }
+  };
+
+  fetchTodaysPrescriptions();
+}, [selectedQueuePatient]); // Only runs when selectedQueuePatient changes
   const fetchCurrentShift = async () => {
     try {
       console.log("trying to fetch the current shift");
@@ -48,6 +105,11 @@ const CompounderDashboard = ({ user, setUser }) => {
     } catch (error) {
       console.error('Error fetching current shift:', error);
       setShift(null);
+    }
+  };
+  const handleQueuePatientDoubleClick = (item) => {
+    if (donePatients.includes(item.patientId._id)) {
+      setSelectedQueuePatient(item);
     }
   };
 
@@ -301,11 +363,23 @@ const CompounderDashboard = ({ user, setUser }) => {
                 <h3>Patients in Shift</h3>
                 {shift.queue && shift.queue.length > 0 ? (
                   <ul>
-                    {shift.queue.map((item, index) => (
-                      <li key={index}>
-                        {item.sequenceNo}. {item.patientId.firstName} {item.patientId.lastName}
-                      </li>
-                    ))}
+                    {shift?.queue?.map((item, index) => (
+  <li 
+    key={index} 
+    className={donePatients.includes(item.patientId._id) ? 'patient-done' : ''}
+    onDoubleClick={() => handleQueuePatientDoubleClick(item)}
+    style={{ 
+      cursor: donePatients.includes(item.patientId._id) ? 'pointer' : 'not-allowed',
+      position: 'relative'
+    }}
+  >
+    {item.sequenceNo}. {item.patientId.firstName} {item.patientId.lastName}
+    
+    {!donePatients.includes(item.patientId._id) && (
+      <span className="tooltip">Complete treatment first</span>
+    )}
+  </li>
+))}
                   </ul>
                 ) : (
                   <p>No patients added to shift.</p>
@@ -317,6 +391,46 @@ const CompounderDashboard = ({ user, setUser }) => {
           </div>
         </div>
       </div>
+      
+      {selectedQueuePatient && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>
+        Prescriptions for {selectedQueuePatient.patientId.firstName}{' '}
+        {selectedQueuePatient.patientId.lastName}
+      </h3>
+      
+      {currentPrescriptions.length > 0 ? (
+        <ul className="prescriptions-list">
+          {currentPrescriptions.map((prescription) => (
+            <li key={prescription._id} className="prescription-item">
+              <div>
+                <strong>{prescription.medicineName}</strong> - 
+                {prescription.dosage} for {prescription.courseDuration}
+                {prescription.instructions && (
+                  <p>Instructions: {prescription.instructions}</p>
+                )}
+                <p>
+                  Date: {new Date(prescription.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No prescriptions found for today.</p>
+      )}
+      
+      <button 
+        className="close-button"
+        onClick={() => setSelectedQueuePatient(null)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Modal for Patient Details (with Edit/Delete) */}
       {selectedPatient && (

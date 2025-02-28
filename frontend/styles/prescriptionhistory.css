@@ -1,0 +1,70 @@
+/* prescriptionhistory.css */
+
+.prescription-history {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .prescription-history h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .prescription-history ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .prescription-history li {
+    background-color: #fff;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .prescription-history li strong {
+    font-size: 1.1em;
+    color: #007bff;
+  }
+  
+  .prescription-history li p {
+    margin: 5px 0;
+    color: #555;
+  }
+  
+  .prescription-history button {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  .prescription-history button:hover {
+    background-color: #0056b3;
+  }
+  
+  .patient-done {
+    color: #aaa;
+    text-decoration: line-through;
+  }
+  .mark-done-btn {
+    margin-left: 10px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  
