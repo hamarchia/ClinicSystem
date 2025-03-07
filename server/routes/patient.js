@@ -59,13 +59,16 @@ router.put('/update/:id', authenticateToken, async (req, res) => {
 router.delete('/delete/:patientId', authenticateToken, async (req, res) => {
   try {
     console.log("hitting delete");
-    
-    console.log(req.params);
-    const patient = await Patient.findByIdAndDelete(req.params.patientId);
+
+    // Find the patient first
+    const patient = await Patient.findById(req.params.patientId);
     
     if (!patient) {
       return res.status(404).json({ message: 'Patient not found' });
     }
+
+    // Call remove() to trigger the pre('remove') middleware
+    await patient.deleteOne();
     
     res.json({ message: 'Patient deleted successfully' });
   } catch (err) {
@@ -73,6 +76,7 @@ router.delete('/delete/:patientId', authenticateToken, async (req, res) => {
     console.log(err);
   }
 });
+
 
 // Search Patients by First Name, Last Name, or Both (GET)
 router.get('/search', authenticateToken, async (req, res) => {

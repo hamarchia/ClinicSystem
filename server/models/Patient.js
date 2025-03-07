@@ -29,6 +29,22 @@ const patientSchema = new Schema({
   }
 });
 
+// Middleware to delete associated prescriptions
+patientSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+  try {
+    const Prescription = mongoose.model('Prescription');
+    
+    // Delete all prescriptions where patientId matches this patient's _id
+    await Prescription.deleteMany({ patientId: this._id });
+    console.log("deleting patient's prescriptions");
+    
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 // Index for faster search on patient name
 patientSchema.index({ firstName: 'text', lastName: 'text' });
 

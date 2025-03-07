@@ -40,12 +40,16 @@ io.on('connection', (socket) => {
     console.log('🔄 Received update from doctor:', newDonePatients);
     donePatients = newDonePatients;
     // Broadcast to all connected clients
+    donePatients = [];
     io.emit('done-patients-update', donePatients);
     console.log('📢 Broadcasted update to all clients');
   });
 
   socket.on('disconnect', () => {
-    console.log('🌐 Client disconnected:', socket.id);
+    console.log('Socket disconnected:', socket.id);
+    console.log("trying to clear");
+    donePatients = []; // Hardcode clear
+    io.emit('done-patients-update', donePatients);
   });
 });
 
